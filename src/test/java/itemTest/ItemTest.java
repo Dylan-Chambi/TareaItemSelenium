@@ -19,10 +19,13 @@ public class ItemTest {
 
     String projectName;
 
+    Actions action;
+
     @BeforeEach
     public void openBrowser() {
         System.setProperty("webdriver.chrome.driver", "src/test/resources/driver/chromedriver.exe");
         chrome = new ChromeDriver();
+        action = new Actions(chrome);
 
         // implicit wait
         chrome.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
@@ -68,7 +71,10 @@ public class ItemTest {
         Thread.sleep(1000);
         // update item
         // do a hover over the item to be able to click on the img
-        chrome.findElement(By.xpath("//div[text()='" + itemName + "']")).click();
+        action.moveToElement(chrome.findElement(By.xpath("//div[text()='" + itemName + "']"))).perform();
+        chrome.findElement(By.xpath("//div[text()='" + itemName + "']/parent::td/parent::tr/td/div/img")).click();
+        chrome.findElement(By.xpath("//ul[@id='itemContextMenu']/li/a[text()='Edit']"))
+                .click();
 
         String newItemName = "Dylan Item Updated - " + new Date().getTime();
 
@@ -89,8 +95,7 @@ public class ItemTest {
         Assertions.assertEquals(1, numberOfItemsByItemNameUpdated, "ERROR: the item was not updated");
 
         // delete item
-        Actions actions = new Actions(chrome);
-        actions.moveToElement(chrome.findElement(By.xpath("//div[text()='" + newItemName + "']"))).perform();
+        action.moveToElement(chrome.findElement(By.xpath("//div[text()='" + newItemName + "']"))).perform();
         chrome.findElement(By.xpath("//div[text()='" + newItemName + "']/parent::td/parent::tr/td/div/img")).click();
         chrome.findElement(By.xpath("//ul[@id='itemContextMenu']/li/a[text()='Delete']"))
                 .click();
